@@ -10,14 +10,22 @@ public class Airplane {
 	private boolean seat[][];
 	private int vipSeatPrice;
 	private int seatPrice;
+	private int rows;
+	private int vipRows;
+	private int numOfSeats;
+	private int numOfVipSeats;
 
 	public Airplane(String destination, int distance, String type) {
 		this.destination = destination;
-		this.deistance = distance;
-		this.vip = new boolean[planeType.get(type)[0]][planeType.get(type)[1]]
-		this.seat = new boolean[planeType.get(type)[2]][planeType.get(type)[3]]
+		this.distance = distance;
+		this.rows = planeType.get(type)[2];
+		this.vipRows = planeType.get(type)[0];
+		this.numOfSeats = planeType.get(type)[3];
+		this.numOfVipSeats = planeType.get(type)[1];
 		this.vipSeatPrice = planeType.get(type)[4];
 		this.seatPrice = planeType.get(type)[5];
+		this.vip = new boolean[vipRows][numOfVipSeats];
+		this.seat = new boolean[rows][numOfSeats];
 
 	}
 	
@@ -41,5 +49,23 @@ public class Airplane {
 
 	public int getSeatPrice(int row, char seat) {
 			
+	}
+	public boolean getSeatFree(int row, char seat) {
+		int seatNum = seat - "a";
+		if (row - 1 < vipRows) {
+			if (seatNum > numOfVipSeats) {
+				throw IndexOutOfBoundsException;
+			}
+			return vip[row - 1][seatNum];
+		} else if (row - 1 < rows) {
+			if (seatNum > numOfSeats) {
+				throw IndexOutOfBoundsException;
+			}
+			return seat[row - 1][seatNum];
+
+		} else {
+			throw IndexOutOfBoundsException;
+		}
+
 	}
 }
