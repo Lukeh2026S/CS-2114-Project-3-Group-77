@@ -6,10 +6,10 @@ public class Airplane {
 	final String destination;
 	final int distance;
 	final Hashmap<String, int[]> planeType = Map.of("747", {2, 2, 20, 3, 300, 200});
-	boolean vip[][];
-	boolean seat[][];
-	int vipSeatPrice;
-	int seatPrice;
+	private boolean vip[][];
+	private boolean seat[][];
+	private int vipSeatPrice;
+	private int seatPrice;
 
 	public Airplane(String destination, int distance, String type) {
 		this.destination = destination;
@@ -40,6 +40,6 @@ public class Airplane {
 	}
 
 	public int getSeatPrice(int row, char seat) {
-		
+			
 	}
 }
