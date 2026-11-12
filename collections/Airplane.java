@@ -1,71 +1,90 @@
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class Airplane {
+private final HashMap<String, int[]> PLANE_TYPES = new HashMap<>(Map.of(
+        "Regional", new int[] {8, 4, 1, 2}, 
+        "Standard", new int[] {20, 6, 3, 4}, 
+        "Jumbo", new int[] {30, 6, 5, 4}));
+    private final int flightNumber;
+    private final String destination;
+    private final int distance;
+    private final String type;
+    private final int rows;
+    private final int seatsPerRow;
+    private final int vipRows;
+    private final int vipSeatsPerRow;
+    private final int totalSeats;
+    private final boolean[][] seat;
+    private final boolean[][] vipSeat;
+    private final int vipSeatPrice;
+    private final int regularSeatPrice; 
 
-	final String destination;
-	final int distance;
-	final Hashmap<String, int[]> planeType = Map.of("747", {2, 2, 20, 3, 300, 200});
-	private boolean vip[][];
-	private boolean seat[][];
-	private int vipSeatPrice;
-	private int seatPrice;
-	private int rows;
-	private int vipRows;
-	private int numOfSeats;
-	private int numOfVipSeats;
+    /**
+     * Builds a plane from one of the known types: Regional, Standard or Jumbo.
+     */
+    public Airplane(int flightNumber, String destination, int distance, String type) {
+        this.flightNumber = flightNumber;
+        this.destination = destination;
+        this.distance = distance;
+        this.type = type;
+        this.rows = PLANE_TYPES.get(type)[0];
+        this.seatsPerRow = PLANE_TYPES.get(type)[1];
+        this.vipRows = PLANE_TYPES.get(type)[2];
+        this.vipSeatsPerRow = PLANE_TYPES.get(type)[3];
+        this.totalSeats = rows * seatsPerRow + vipRows * vipSeatsPerRow;
+        this.regularSeatPrice = 50 + distance / 10;
+        this.vipSeatPrice = regularSeatPrice * 3;
+        this.seat = new boolean[rows][seatsPerRow];
+        this.vipSeat = new boolean[vipRows][vipSeatsPerRow];
+    }
 
-	public Airplane(String destination, int distance, String type) {
-		this.destination = destination;
-		this.distance = distance;
-		this.rows = planeType.get(type)[2];
-		this.vipRows = planeType.get(type)[0];
-		this.numOfSeats = planeType.get(type)[3];
-		this.numOfVipSeats = planeType.get(type)[1];
-		this.vipSeatPrice = planeType.get(type)[4];
-		this.seatPrice = planeType.get(type)[5];
-		this.vip = new boolean[vipRows][numOfVipSeats];
-		this.seat = new boolean[rows][numOfSeats];
+    public int getFlightNumber() {
+        return flightNumber;
+    }
 
-	}
-	
-	public void DisplaySeatChart() {}
+    public String getDestination() {
+        return destination;
+    }
 
-	public int getRows() {
-		return planeType.get(type)[2];
-	}
+    public int getDistance() {
+        return distance;
+    }
 
-	public int getVipRows() {
-		return planeType.get(type)[0];
-	}
+    public String getType() {
+        return type;
+    }
 
-	public int getSeatsPerRows() {
-		return planeType.get(type)[3];
-	}
+    public int getRows() {
+        return rows;
+    }
 
-	public int getSeatsPerVipRows() {
-		return planeType.get(type)[1];
-	}
+    public int getVipRows() {
+        return vipRows;
+    }
 
-	public int getSeatPrice(int row, char seat) {
-			
-	}
-	public boolean getSeatFree(int row, char seat) {
-		int seatNum = seat - "a";
-		if (row - 1 < vipRows) {
-			if (seatNum > numOfVipSeats) {
-				throw IndexOutOfBoundsException;
-			}
-			return vip[row - 1][seatNum];
-		} else if (row - 1 < rows) {
-			if (seatNum > numOfSeats) {
-				throw IndexOutOfBoundsException;
-			}
-			return seat[row - 1][seatNum];
+    public int getSeatsPerRow() {
+        return seatsPerRow;
+    }
 
-		} else {
-			throw IndexOutOfBoundsException;
-		}
+    public int getSeatsPerRowVip() {
+        return vipSeatsPerRow;
+    }
 
-	}
+    public int getTotalRows() {
+        return vipRows + rows;
+    }
+
+    public int getTotalSeats() {
+        return totalSeats;
+    }
+
+    public int getRegularSeatPrice() {
+        return regularSeatPrice;
+    }
+
+    public int getVipSeatPrice() {
+        return vipSeatPrice;
+    }
 }
