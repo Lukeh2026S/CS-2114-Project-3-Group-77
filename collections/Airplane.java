@@ -170,7 +170,7 @@ private final HashMap<String, int[]> PLANE_TYPES = new HashMap<>(Map.of(
             lastRow = vipRows + 1;
         } else {
             firstRow = vipRows;
-            lastRow = getTotalRows()
+            lastRow = getTotalRows();
         }
         for (int row = firstRow; row <= lastRow; row++) {
             for (int col = 0; col < seatsInRow(row); col++) {
