@@ -62,6 +62,13 @@ public class Boarding {
                 return head.ticket;
         }
 
+        Ticket peekLast() {
+            if (tail == null) {
+                return null;
+            }
+                return tail.ticket;
+        }
+
         int indexOf(Ticket ticket) {
             int i = 0;
             for (Node n = head; n != null; n = n.next) {
