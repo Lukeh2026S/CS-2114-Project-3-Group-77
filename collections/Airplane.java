@@ -109,13 +109,6 @@ private final HashMap<String, int[]> PLANE_TYPES = new HashMap<>(Map.of(
         return col >= 0 && col < seatsInRow(row);
     }
 
-    private void requireValidSeat(int row, char seatLetter) {
-        if (!isValidSeat(row, seatLetter)) {
-            throw new IllegalArgumentException("Seat " + row + Character.toUpperCase(seatLetter)
-                    + " does not exist on this plane.");
-        }
-    }
-
     private boolean[][] sectionFor(int row) {
         if (isVipRow(row)){
             return vipSeat;
@@ -131,12 +124,18 @@ private final HashMap<String, int[]> PLANE_TYPES = new HashMap<>(Map.of(
     }
 
     public boolean isSeatTaken(int row, char seatLetter) {
-        requireValidSeat(row, seatLetter);
+        if (!isValidSeat(row, seatLetter)) {
+            throw new IllegalArgumentException("Seat " + row + Character.toUpperCase(seatLetter)
+                    + " does not exist on this plane.");
+        }
         return sectionFor(row)[rowIndex(row)][Character.toUpperCase(seatLetter) - 'A'];
     }
 
     public int getSeatPrice(int row, char seatLetter) {
-        requireValidSeat(row, seatLetter);
+        if (!isValidSeat(row, seatLetter)) {
+            throw new IllegalArgumentException("Seat " + row + Character.toUpperCase(seatLetter)
+                    + " does not exist on this plane.");
+        }
         if(isVipRow(row)) {
             return vipSeatPrice;
         }
