@@ -167,9 +167,9 @@ private final HashMap<String, int[]> PLANE_TYPES = new HashMap<>(Map.of(
         int lastRow;
         if (vip) {
             firstRow = 1; 
-            lastRow = vipRows + 1;
+            lastRow = vipRows;
         } else {
-            firstRow = vipRows;
+            firstRow = vipRows + 1;
             lastRow = getTotalRows();
         }
         for (int row = firstRow; row <= lastRow; row++) {
