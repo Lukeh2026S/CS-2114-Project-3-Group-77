@@ -1,7 +1,9 @@
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class Airplane {
@@ -22,11 +24,12 @@ private final HashMap<String, int[]> PLANE_TYPES = new HashMap<>(Map.of(
     private final boolean[][] vipSeat;
     private final int vipSeatPrice;
     private final int regularSeatPrice; 
+    private final Random rng;
 
     /**
      * Builds a plane from one of the known types: Regional, Standard or Jumbo.
      */
-    public Airplane(int flightNumber, String destination, int distance, String type) {
+    public Airplane(int flightNumber, String destination, int distance, String type, Random rng) {
         this.flightNumber = flightNumber;
         this.destination = destination;
         this.distance = distance;
@@ -40,6 +43,7 @@ private final HashMap<String, int[]> PLANE_TYPES = new HashMap<>(Map.of(
         this.vipSeatPrice = regularSeatPrice * 3;
         this.seat = new boolean[rows][seatsPerRow];
         this.vipSeat = new boolean[vipRows][vipSeatsPerRow];
+        this.rng = rng;
     }
 
     public int getFlightNumber() {
@@ -90,159 +94,93 @@ private final HashMap<String, int[]> PLANE_TYPES = new HashMap<>(Map.of(
         return vipSeatPrice;
     }
 
-    public boolean isVipRow(int row) {
-        return row >= 1 && row <= vipRows;
+    public int[] getPrices() {
+        return new int[] {vipSeatPrice, regularSeatPrice, (int)(regularSeatPrice*0.75)};
     }
 
-    private int seatsInRow(int row) {
-        if(isVipRow(row)) {
-            return vipSeatsPerRow;
-        }
-            return seatsPerRow;
+    public boolean[][] getSeat() {
+        return copy(seat);
     }
 
-    public boolean isValidSeat(int row, char seatLetter) {
-        if (row < 1 || row > getTotalRows()) {
-            return false;
-        }
-        int col = Character.toUpperCase(seatLetter) - 'A';
-        return col >= 0 && col < seatsInRow(row);
+    public boolean[][] getVipSeat() {
+        return copy(vipSeat);
     }
 
-    private boolean[][] sectionFor(int row) {
-        if (isVipRow(row)){
-            return vipSeat;
+
+
+
+    public Ticket buyChosenSeat(User u, int seatNumber, int col) {
+        if (u == null) {
+            throw new IllegalArgumentException("A buyer is required");
         }
-        return seat;
+        if (u.getTicket() != null) {
+            throw new IllegalArgumentException("You already have a ticket");
+        }
+        if (seatNumber < 1 || seatNumber > vipRows + rows) {
+            throw new IndexOutOfBoundsException("There is no row " + seatNumber + " on this plane");
+        }
+        boolean inVip = seatNumber <= vipRows;
+        boolean[][] grid = seat;
+        int r = seatNumber - vipRows - 1;
+        int price = regularSeatPrice;
+        if (inVip) {
+            grid = vipSeat;
+            r = seatNumber - 1;
+            price = vipSeatPrice;
+        }
+        if (col < 0 || col >= grid[r].length) {
+            throw new IndexOutOfBoundsException("Row " + seatNumber + " has no such seat letter");
+        }
+        String label = seatNumber + "" + (char) ('A' + col);
+        if (inVip && !u.isVip()) {
+            throw new UnsupportedOperationException(
+                    "Seat " + label + " is a VIP seat and you are not a VIP");
+        }
+        if (grid[r][col]) {
+            throw new IllegalStateException("Seat " + label + " is already taken");
+        }
+        boolean rearHalf = !inVip && r >= rows / 2;
+        int group = Boarding.groupFor(u.isVip(), false, rearHalf);
+        return sell(u, grid, r, col, seatNumber, price, group);
     }
 
-    private int rowIndex(int row) {
-        if (isVipRow(row)){
-            return row - 1;
+    public Ticket buyRandomSeat(User u) {
+        if (u == null) {
+            throw new IllegalArgumentException("A buyer is required");
         }
-        return row - vipRows - 1;
-    }
-
-    public boolean isSeatTaken(int row, char seatLetter) {
-        if (!isValidSeat(row, seatLetter)) {
-            throw new IllegalArgumentException("Seat " + row + Character.toUpperCase(seatLetter)
-                    + " does not exist on this plane.");
+        if (u.getTicket() != null) {
+            throw new IllegalArgumentException("You already have a ticket");
         }
-        return sectionFor(row)[rowIndex(row)][Character.toUpperCase(seatLetter) - 'A'];
-    }
-
-    public int getSeatPrice(int row, char seatLetter) {
-        if (!isValidSeat(row, seatLetter)) {
-            throw new IllegalArgumentException("Seat " + row + Character.toUpperCase(seatLetter)
-                    + " does not exist on this plane.");
-        }
-        if(isVipRow(row)) {
-            return vipSeatPrice;
-        }
-        return regularSeatPrice;
-    }
-
-    public int getBoardingGroupForRow(int row) {
-        if (row < 1 || row > getTotalRows()) {
-            throw new IllegalArgumentException("Row " + row + " does not exist on this plane.");
-        }
-        if (isVipRow(row)) {
-            return 0;
-        }
-        return 3 - (rowIndex(row) * 3 / rows);
-    }
-
-    public Ticket buyChosenSeat(String name, int row, char seatLetter) {
-        if (isSeatTaken(row, seatLetter)) {
-            throw new IllegalStateException("Seat " + row + Character.toUpperCase(seatLetter) + " is already taken.");
-        }
-        sectionFor(row)[rowIndex(row)][Character.toUpperCase(seatLetter) - 'A'] = true;
-        return new Ticket(this, name, row, seatLetter, getBoardingGroupForRow(row));
-    }
-
-    public List<String> getAvailableSeats(boolean vip) {
-        List<String> open = new ArrayList<>();
-        int firstRow;
-        int lastRow;
-        if (vip) {
-            firstRow = 1; 
-            lastRow = vipRows;
-        } else {
-            firstRow = vipRows + 1;
-            lastRow = getTotalRows();
-        }
-        for (int row = firstRow; row <= lastRow; row++) {
-            for (int col = 0; col < seatsInRow(row); col++) {
-                if (!sectionFor(row)[rowIndex(row)][col]) {
-                    open.add(row + "" + (char) ('A' + col));
+        List<int[]> free = new ArrayList<>();
+        for (int r = 0; r < seat.length; r++) {
+            for (int c = 0; c < seat[r].length; c++) {
+                if (!seat[r][c]) {
+                    free.add(new int[] {r, c});
                 }
             }
         }
-        return open;
-    }
-
-    public List<String> getAvailableSeats() {
-        List<String> open = getAvailableSeats(true);
-        open.addAll(getAvailableSeats(false));
-        return open;
-    }
-
-    public int getAvailableSeatCount() {
-        return getAvailableSeats().size();
-    }
-
-    public int getOccupiedSeatCount() {
-        return totalSeats - getAvailableSeatCount();
-    }
-
-    public boolean isFull() {
-        return getAvailableSeatCount() == 0;
-    }
-
-    public static int rowOf(String seatLabel) {
-        return Integer.parseInt(seatLabel.substring(0, seatLabel.length() - 1));
-    }
-
-    public static char letterOf(String seatLabel) {
-        return Character.toUpperCase(seatLabel.charAt(seatLabel.length() - 1));
-    }
-
-    public String getSeatChart() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Flight %d to %s (%s), %d of %d seats open\n%8s",
-                flightNumber, destination, type, getAvailableSeatCount(), totalSeats, ""));
-        for (int c = 0; c < seatsPerRow; c++) {
-            if (seatsPerRow >= 4 && c == seatsPerRow / 2) {
-                sb.append(" ");
-            }
-            sb.append(' ').append((char) ('A' + c)).append(' ');
+        if (free.isEmpty()) {
+            throw new NoSuchElementException("No regular seats are left on this flight");
         }
-        sb.append("\n");
-        for (int row = 1; row <= getTotalRows(); row++) {
-            if (row == 1 && vipRows > 0) {
-                sb.append(String.format("VIP / First class ($%d)\n", vipSeatPrice));
-            }
-            if (row == vipRows + 1) {
-                sb.append(String.format("Regular ($%d)\n", regularSeatPrice));
-            }
-            sb.append(String.format("Row %2d  ", row));
-            int n = seatsInRow(row);
-            for (int c = 0; c < n; c++) {
-                if (n >= 4 && c == n / 2) {
-                    sb.append(" ");
-                }
-                if (sectionFor(row)[rowIndex(row)][c]) {
-                    sb.append("[X]");
-                } else {
-                    sb.append("[ ]");
-                }
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
+        int[] pick = free.get(rng.nextInt(free.size()));
+        int group = Boarding.groupFor(u.isVip(), true, false);
+        return sell(u, seat, pick[0], pick[1], vipRows + pick[0] + 1, (int)(regularSeatPrice*0.75), group);
     }
 
-    public void displaySeatChart() {
-        System.out.print(getSeatChart());
+    private Ticket sell(User u, boolean[][] grid, int r, int c, int seatNumber,
+                        int price, int group) {
+        u.spend(price); // throws before anything changes if the user cannot pay
+        grid[r][c] = true;
+        Ticket t = new Ticket(this, u.getName(), seatNumber, (char) ('A' + c), group, price);
+        u.setTicket(t);
+        return t;
+    }
+
+    private static boolean[][] copy(boolean[][] grid) {
+        boolean[][] out = new boolean[grid.length][];
+        for (int i = 0; i < grid.length; i++) {
+            out[i] = grid[i].clone();
+        }
+        return out;
     }
 }
