@@ -4,7 +4,7 @@ This project is an airplane ticket and boarding simulator.
 How to run:
 To run this project, download all of the files together. Then run the main branch to see and example of the view and enter your name when prompted. It should output your name and a predetermined seat number and char. To run the tests run the tests.java file.
 
-
+ 
 Reflection — 
 
 How did your design absorb the change? List the classes your feature actually touched. Compare that with the prediction in your D3 Next Steps: what matched, what surprised you?
@@ -44,8 +44,5 @@ Attribution —
 
 Luke - helped with all files and wrote the menu class and changed desgin to mvc, reviewed and revised other classes.
 
-Abdullah - helped write main and part of UserSim class and revised tests.
-
-Jake - wrote test classes and reviewed code.
 
 We did not use Gen AI in out project.
