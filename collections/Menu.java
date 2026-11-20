@@ -25,8 +25,7 @@ public class Menu {
         System.out.println("=== LIFT OFF ===  " + name + "  |  $" + money + "  |  " + miles + " miles");
         System.out.println("  1. Choose a flight");
         System.out.println("  2. Buy a ticket");
-        System.out.println("  3. Start boarding");
-        System.out.println("  4. Quit");
+        System.out.println("  3. Quit");
     }
 
     public void showFlights(Airplane[] planes) {
