@@ -17,7 +17,7 @@ public class Menu {
     }
 
     public void showError(String message) {
-        System.out.println("  ! " + message);
+        System.out.println("! " + message);
     }
 
     public void showMainMenu(String name, int money, int miles) {
@@ -33,7 +33,7 @@ public class Menu {
         System.out.println();
         System.out.println("Flights:");
         for (int i = 0; i < planes.length; i++) {
-            System.out.println("  " + (i + 1) + ". " + planes[i].getDestination() + " (" + planes[i].getDistance() + " miles)");
+            System.out.println("  " + (i + 1) + ". Flight " + planes[i].getFlightNumber() + " to " + planes[i].getDestination() + " (" + planes[i].getDistance() + " miles)");
         }
     }
 

@@ -4,14 +4,14 @@ public class Ticket {
     private final int seatNum;
     private final char seatPos;
     private final int boardingGroup;
-    private final boolean crew;
-    public Ticket(Airplane plane, String userName, int seatNum, char seatPos, int boardingGroup) {
+    private final int price;
+    public Ticket(Airplane plane, String userName, int seatNum, char seatPos, int boardingGroup, int price) {
         this.plane = plane;
         this.userName = userName;
         this.seatNum = seatNum;
         this.seatPos = seatPos;
         this.boardingGroup = boardingGroup;
-        this.crew = false;
+        this.price = price;
     }
     
     public Airplane getPlane() {
@@ -32,5 +32,9 @@ public class Ticket {
 
     public int getBoardingGroup(){
         return this.boardingGroup;
+    }
+
+    public int getPrice(){
+        return this.price;
     }
 }
